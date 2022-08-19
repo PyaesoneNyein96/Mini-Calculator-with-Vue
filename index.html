@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.4.0/mdb.min.css" rel="stylesheet" />
+    <title>Document</title>
+
+    <style>
+        .charge {
+            background-color: rgb(60, 37, 20);
+            height: 30px;
+            border-radius: 2px;
+            border: 2px solid rgb(18, 25, 28);
+        }
+
+        .rounded-circle {
+            background-color: rgb(5, 5, 44);
+            box-shadow: 1.2px 3px 5px rgb(58, 58, 77);
+            margin-top: 3px;
+        }
+
+        .card {
+            background-color: rgb(185, 185, 241);
+            box-shadow: 1.2px 3px 5px rgb(58, 58, 77);
+            width: 350px;
+            margin: auto;
+        }
+
+        .equal {
+            background-color: rgb(145, 92, 57);
+        }
+
+        .operatorcolor {
+            background-color: darkgreen;
+        }
+
+        .result {
+            font-size: 20px;
+        }
+
+        .size {
+            font-size: 15;
+        }
+    </style>
+</head>
+
+<body class="bg-black">
+
+    <div id="calculator">
+        <div class="container">
+            <div class="row">
+                <div class="calculator-main">
+                    <div class="row mt-5 justify-content-center">
+                        <div class="">
+                            <div class="card">
+                                <div class="card-body rounded-4 pb-">
+                                    <div class="bg-black pt-2 rounded-4" style="width: 100%; height:50px;">
+                                        <div class="float-end result text-light px-4 pb-0">{{input}}</div>
+                                    </div>
+                                    <div class="col-5 bg-dark d-flex justify-content-between rounded-4 mt-2">
+                                        <div class="col charge"></div>
+                                        <div class="col charge"></div>
+                                        <div class="col charge"></div>
+                                        <div class="col charge"></div>
+                                    </div>
+                                    <hr>
+
+                                    <div class="row no-gutters mt-3">
+                                        <button class="btn m-2  col text-light py-3 rounded-circle py-4"
+                                            :class="{[operateColor]:['+','-','*','/','%'].includes(i), 'bg-danger':['C','SH','CH'].includes(i), [color]: ['='].includes(i),[size]: ['+','-','*','/'].includes(i)}"
+                                            v-for="i in items" :key="i" @click="action(i)">{{i}}</button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+
+                    <div class="history" style="margin-top: 100px;">
+                        <ul>
+                            <h4 class="text-grayish text-center">
+                                Histories
+                            </h4>
+                            <li class="list-group-item py-0 my-0 bg-black" style=" overflow-x: hidden;"
+                                v-for="(h, index) in historiesResult" :key="index">
+                                <button class="btn btn-close btn-close-white row mb-2 float-end" @click="del(index)">
+                                </button>
+                                {{h}}
+
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+</body>
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.4.0/mdb.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+
+<script>
+
+    let app = new Vue({
+        el: '#calculator',
+        data: {
+            items: [
+                9, 8, 7, '%', 6, 5, 4, '/', 3, 2, 1, '*', '.', 0, '+', '-', 'SH', 'CH', 'C', '='
+            ],
+            color: 'equal',
+            operateColor: 'operatorcolor',
+            size: 'size',
+            input: '',
+            operator: '',
+            previousValue: '',
+            secondValue: '',
+            history: '',
+            historiesResult: []
+
+        },
+
+        methods: {
+            del(index) {
+                this.historiesResult.splice(index, 1)
+            },
+
+
+            action(i) {
+                if (!isNaN(i) || i === '.') {
+                    this.input += i + '';
+                }
+                if (i === 'C') {
+                    this.input = ''
+                }
+                if (i === '%') {
+                    this.input = this.input / 100 + '';
+                }
+                if (['+', '-', '*', '/'].includes(i)) {
+                    this.operator = i;
+                    this.previousValue = this.input;
+                    this.input = '';
+
+                }
+                if (i === '=') {
+                    this.secondValue = this.input
+                    if (this.operator && this.input) {
+                        this.input = eval(
+                            this.input = this.previousValue + this.operator + this.input,
+                        );
+                        // this.input = parseFloat(this.input).toFixed(4);
+                        this.input = parseFloat(this.input.toFixed(5));
+                    }
+
+                    if (this.input) {
+                        this.history =
+                            `${this.previousValue}
+                        ${this.operator} 
+                        ${this.secondValue} =
+                    ${this.input}`
+                        this.historiesResult.push(
+                            this.history
+                        )
+                    };
+
+
+                    this.previousValue = '';
+                    this.operator = null;
+                    let hi = document.querySelector('.history');
+                    let main = document.querySelector('.calculator-main');
+                    if (!main.classList.contains('col-6')) {
+                        hi.style.display = 'none'
+                    }
+
+
+                }
+
+                if (i === 'CH') {
+                    this.historiesResult = []
+                    let hi = document.querySelector('.history');
+                    let main = document.querySelector('.calculator-main');
+                    if (main.classList.contains('col-6')) {
+                        main.classList.remove('col-6')
+                    }
+
+                }
+
+                if (i === 'SH') {
+                    let main = document.querySelector('.calculator-main');
+                    let hi = document.querySelector('.history');
+
+                    if (main.classList.contains('col-6')) {
+                        main.classList.remove('col-6');
+                        hi.style.display = 'none'
+                    } else {
+                        main.classList.add('col-6');
+                        hi.style.display = 'block'
+
+                    }
+
+                }
+
+
+
+
+            }
+
+        },
+    });
+</script>
+
+
+</html>
